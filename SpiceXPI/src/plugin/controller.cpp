@@ -168,6 +168,14 @@ gpointer SpiceController::ClientThread(gpointer data)
     if (!fake_this->m_proxy.empty())
         env = g_environ_setenv(env, "SPICE_PROXY", fake_this->m_proxy.c_str(), TRUE);
 
+    // Work around bug in firefox gtk3 builds, see
+    // https://bugzilla.redhat.com/show_bug.cgi?id=1217076
+    // http://emilio.pozuelo.org/posts/75
+    //
+    // This LD_PRELOAD'ed library causes gtk3 applications to crash
+    // FIXME: remove this hack if this ever gets improved in firefox-gtk3
+    env = g_environ_unsetenv(env, "LD_PRELOAD");
+
     // Try to spawn main client
     client_argv = fake_this->GetClientPath();
     if (client_argv != NULL) {
